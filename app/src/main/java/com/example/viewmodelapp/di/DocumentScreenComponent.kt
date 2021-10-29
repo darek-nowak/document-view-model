@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.viewmodelapp.CvDetailFragment
 import com.example.viewmodelapp.CvListFragment
 import com.example.viewmodelapp.DocumentApplication
-import com.example.viewmodelapp.MainActivity
+import com.example.viewmodelapp.presentation.MainActivity
 import com.example.viewmodelapp.data.GitHubApi
 import dagger.Module
 import dagger.Provides

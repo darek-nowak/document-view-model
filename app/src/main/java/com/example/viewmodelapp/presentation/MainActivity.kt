@@ -1,9 +1,12 @@
-package com.example.viewmodelapp
+package com.example.viewmodelapp.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.viewModels
+import com.example.viewmodelapp.DocumentViewModel
+import com.example.viewmodelapp.DocumentsList
+import com.example.viewmodelapp.R
 import com.example.viewmodelapp.di.DocumentScreenComponentHolder
 import com.example.viewmodelapp.di.DocumentViewModelFactory
 import javax.inject.Inject
