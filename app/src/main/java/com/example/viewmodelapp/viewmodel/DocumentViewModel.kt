@@ -1,5 +1,6 @@
 package com.example.viewmodelapp
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,7 @@ import com.example.viewmodelapp.data.DocumentListsInteractor
 import com.example.viewmodelapp.data.Result
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposables
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class DocumentViewModel(
@@ -19,14 +21,13 @@ class DocumentViewModel(
     val state: LiveData<DocumentsList> = _state
 
     init {
-        setValue(DocumentsList.InProgress)
-        //fetchDocumentsListData()
+        fetchDocumentsListData()
     }
 
     private fun fetchDocumentsListData() {
         disposable = docsListInteractor.getCvDocumentsList()
-            .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { onStartLoadingList() }
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { result ->
                 when (result) {
                     is Result.Success -> onData(result.data)
@@ -35,19 +36,18 @@ class DocumentViewModel(
             }
     }
 
-    fun click() {
-        fetchDocumentsListData()
-    }
-
     private fun onStartLoadingList() {
+        Log.d("docs", "InProgress")
         setValue(DocumentsList.InProgress)
     }
 
     private fun onData(data: List<CvDocumentInfo>) {
+        Log.d("docs", "onData")
         setValue(DocumentsList.Success(data))
     }
 
     private fun onError() {
+        Log.d("docs", "onError")
         setValue(DocumentsList.Error)
     }
 

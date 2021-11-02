@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ViewModelApp</string>
+    <string name="error_fetching_your_data">Error fetching data</string>
 </resources>

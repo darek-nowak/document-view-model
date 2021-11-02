@@ -2,9 +2,13 @@ package com.example.viewmodelapp.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import com.example.viewmodelapp.DocumentViewModel
+import com.example.viewmodelapp.DocumentsFragment
 import com.example.viewmodelapp.DocumentsList
 import com.example.viewmodelapp.R
 import com.example.viewmodelapp.di.DocumentScreenComponentHolder
@@ -28,8 +32,9 @@ class MainActivity : AppCompatActivity() {
 
         val viewModel: DocumentViewModel by viewModels { documentViewModelFactory }
 
-        val docText = findViewById<TextView>(R.id.docText)
-        val docButton = findViewById<TextView>(R.id.docButton)
+        val dataContainer = findViewById<FrameLayout>(R.id.container)
+        val errorText = findViewById<TextView>(R.id.errorText)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
         // read state for right fragment,
         // State { LIST, DETAIL }
@@ -38,16 +43,24 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.state.observe(this) { state ->
             when (state) {
-                DocumentsList.InProgress -> docText.text = "in progress"
-                DocumentsList.Error -> docText.text = "error"
+                DocumentsList.InProgress -> {
+                    progressBar.setVisibility(true)
+                }
+                DocumentsList.Error -> {
+                    errorText.setVisibility(true)
+                }
                 is DocumentsList.Success -> {
-                    docText.text = state.data.map { it.name }.joinToString(",")
+                    dataContainer.setVisibility(true)
+                    progressBar.setVisibility(false)
+                    DocumentsFragment.attach(
+                        containerId = R.id.container,
+                        fragmentManager = supportFragmentManager,
+                        data = state.data
+                    )
                 }
             }
-
-        }
-        docButton.setOnClickListener {
-            viewModel.click()
         }
     }
 }
+
+fun View.setVisibility(visible: Boolean) { visibility = if (visible) View.VISIBLE else View.GONE }

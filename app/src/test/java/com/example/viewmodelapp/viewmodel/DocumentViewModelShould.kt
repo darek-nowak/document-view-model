@@ -5,21 +5,23 @@ import com.example.viewmodelapp.DocumentViewModel
 import com.example.viewmodelapp.DocumentsList
 import com.example.viewmodelapp.data.CvDocumentInfo
 import com.example.viewmodelapp.data.DocumentListsInteractor
-import com.nhaarman.mockito_kotlin.given
-import com.nhaarman.mockito_kotlin.mock
-import io.reactivex.Single
-import org.junit.jupiter.api.Test
 import com.example.viewmodelapp.data.Result
 import com.example.viewmodelapp.utils.InstantTaskExecutorExtension
+import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.SingleSubject
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class DocumentViewModelShould {
-    private val interactor: DocumentListsInteractor = mock()
+    private val documentsSubject =  SingleSubject.create<Result<List<CvDocumentInfo>>>()
+    private val interactor: DocumentListsInteractor = mock {
+        on { it.getCvDocumentsList() }.thenReturn(documentsSubject)
+    }
     private val stateObserver: Observer<DocumentsList> = mock()
 
     private lateinit var viewModel: DocumentViewModel
@@ -36,11 +38,7 @@ internal class DocumentViewModelShould {
 
     @Test
     fun `update view on successful of document list loading`() {
-        given(interactor.getCvDocumentsList()).willReturn(
-            Single.just(Result.Success(SAMPLE_CV_DOCS_LIST))
-        )
-
-        viewModel.click()
+        documentsSubject.onSuccess(Result.Success(SAMPLE_CV_DOCS_LIST))
 
         verify(stateObserver).onChanged(
             DocumentsList.Success(SAMPLE_CV_DOCS_LIST)
@@ -56,11 +54,7 @@ internal class DocumentViewModelShould {
 
     @Test
     fun `update view on failure of document list loading`() {
-        given(interactor.getCvDocumentsList()).willReturn(
-            Single.just(Result.Error)
-        )
-
-        viewModel.click()
+        documentsSubject.onSuccess(Result.Error)
 
         verify(stateObserver).onChanged(
             DocumentsList.Error
