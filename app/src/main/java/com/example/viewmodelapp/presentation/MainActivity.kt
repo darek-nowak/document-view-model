@@ -9,7 +9,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
-import com.example.viewmodelapp.DetailsFragment
 import com.example.viewmodelapp.DocumentViewModel
 import com.example.viewmodelapp.DocumentState
 import com.example.viewmodelapp.R

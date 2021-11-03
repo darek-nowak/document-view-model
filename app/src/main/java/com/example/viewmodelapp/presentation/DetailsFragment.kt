@@ -1,4 +1,4 @@
-package com.example.viewmodelapp
+package com.example.viewmodelapp.presentation
 
 import android.os.Bundle
 import android.view.View
@@ -6,8 +6,9 @@ import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.viewmodelapp.R
 import com.example.viewmodelapp.data.DocumentDisplayItem
-import com.example.viewmodelapp.presentation.DetailsAdapter
+import com.example.viewmodelapp.setUpAppBar
 import kotlinx.android.synthetic.main.fragment_details.*
 
 class DetailsFragment: Fragment(R.layout.fragment_details) {
