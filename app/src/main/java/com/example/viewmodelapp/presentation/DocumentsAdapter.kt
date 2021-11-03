@@ -9,7 +9,7 @@ import com.example.viewmodelapp.data.CvDocumentInfo
 import kotlinx.android.synthetic.main.document_info_item.view.*
 import javax.inject.Inject
 
-class DocumentsListAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class DocumentsAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     lateinit var onItemClicked: (CvDocumentInfo) -> Unit
     private val items: MutableList<CvDocumentInfo> = mutableListOf()

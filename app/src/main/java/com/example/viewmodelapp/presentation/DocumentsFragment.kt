@@ -1,4 +1,4 @@
-package com.example.viewmodelapp
+package com.example.viewmodelapp.presentation
 
 import android.os.Bundle
 import android.view.View
@@ -8,13 +8,14 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.viewmodelapp.DocumentViewModel
+import com.example.viewmodelapp.R
 import com.example.viewmodelapp.data.CvDocumentInfo
-import com.example.viewmodelapp.presentation.DocumentsListAdapter
 import kotlinx.android.synthetic.main.fragment_documents.*
 
 class DocumentsFragment: Fragment(R.layout.fragment_documents) {
     private val viewModel: DocumentViewModel by activityViewModels()
-    private val documentsAdapter = DocumentsListAdapter()
+    private val documentsAdapter = DocumentsAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,6 +32,7 @@ class DocumentsFragment: Fragment(R.layout.fragment_documents) {
             adapter = documentsAdapter
         }
         documentsAdapter.setItems(data)
+        documentsAdapter.onItemClicked  = { documentSelected -> viewModel.selectDocument(documentSelected) }
     }
 
     companion object {

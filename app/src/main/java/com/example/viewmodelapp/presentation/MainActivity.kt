@@ -7,9 +7,9 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
+import com.example.viewmodelapp.DetailsFragment
 import com.example.viewmodelapp.DocumentViewModel
-import com.example.viewmodelapp.DocumentsFragment
-import com.example.viewmodelapp.DocumentsList
+import com.example.viewmodelapp.DocumentState
 import com.example.viewmodelapp.R
 import com.example.viewmodelapp.di.DocumentScreenComponentHolder
 import com.example.viewmodelapp.di.DocumentViewModelFactory
@@ -43,19 +43,28 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.state.observe(this) { state ->
             when (state) {
-                DocumentsList.InProgress -> {
+                DocumentState.InProgress -> {
                     progressBar.setVisibility(true)
                 }
-                DocumentsList.Error -> {
+                DocumentState.Error -> {
                     errorText.setVisibility(true)
                 }
-                is DocumentsList.Success -> {
+                is DocumentState.Documents -> {
                     dataContainer.setVisibility(true)
                     progressBar.setVisibility(false)
                     DocumentsFragment.attach(
                         containerId = R.id.container,
                         fragmentManager = supportFragmentManager,
                         data = state.data
+                    )
+                }
+                is DocumentState.Details -> {
+                    dataContainer.setVisibility(true)
+                    progressBar.setVisibility(false)
+                    DetailsFragment.attach(
+                        containerId = R.id.container,
+                        fragmentManager = supportFragmentManager,
+                        documentDetails = state.data
                     )
                 }
             }

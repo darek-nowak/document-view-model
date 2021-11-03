@@ -3,8 +3,8 @@ package com.example.viewmodelapp.di
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
-import com.example.viewmodelapp.CvDetailFragment
-import com.example.viewmodelapp.DocumentsFragment
+import com.example.viewmodelapp.DetailsFragment
+import com.example.viewmodelapp.presentation.DocumentsFragment
 import com.example.viewmodelapp.DocumentApplication
 import com.example.viewmodelapp.presentation.MainActivity
 import com.example.viewmodelapp.data.GitHubApi
@@ -23,7 +23,7 @@ interface DocumentScreenComponent {
     }
 
     fun inject(activity: MainActivity)
-    fun inject(documentFragment: CvDetailFragment)
+    fun inject(documentFragment: DetailsFragment)
     fun inject(documentsListFragment: DocumentsFragment)
 }
 

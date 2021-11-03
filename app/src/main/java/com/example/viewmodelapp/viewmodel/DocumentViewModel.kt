@@ -1,31 +1,27 @@
 package com.example.viewmodelapp
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.viewmodelapp.data.CvDocumentInfo
-import com.example.viewmodelapp.data.DocumentListsInteractor
-import com.example.viewmodelapp.data.Result
+import com.example.viewmodelapp.data.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposables
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 class DocumentViewModel(
-    private val docsListInteractor: DocumentListsInteractor
-): ViewModel() {
+    private val documentsInteractor: DocumentListsInteractor,
+    private val detailsInteractor: DocumentInteractor
+) : ViewModel() {
     private var disposable = Disposables.disposed()
 
-    private val _state: MutableLiveData<DocumentsList> = MutableLiveData(DocumentsList.InProgress)
-    val state: LiveData<DocumentsList> = _state
+    private val _state: MutableLiveData<DocumentState> = MutableLiveData(DocumentState.InProgress)
+    val state: LiveData<DocumentState> = _state
 
     init {
         fetchDocumentsListData()
     }
 
     private fun fetchDocumentsListData() {
-        disposable = docsListInteractor.getCvDocumentsList()
+        disposable = documentsInteractor.getCvDocumentsList()
             .doOnSubscribe { onStartLoadingList() }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { result ->
@@ -36,28 +32,51 @@ class DocumentViewModel(
             }
     }
 
-    private fun onStartLoadingList() {
-        Log.d("docs", "InProgress")
-        setValue(DocumentsList.InProgress)
+    private fun onData(data: List<CvDocumentInfo>) {
+        setValue(DocumentState.Documents(data))
     }
 
-    private fun onData(data: List<CvDocumentInfo>) {
-        Log.d("docs", "onData")
-        setValue(DocumentsList.Success(data))
+    private fun setValue(value: DocumentState) {
+        _state.value = value
+    }
+
+    fun selectDocument(selectedDocument: CvDocumentInfo) {
+        fetchDocumentDetails(selectedDocument.filename)
+    }
+
+    private fun fetchDocumentDetails(filename: String) {
+        disposable = detailsInteractor.getCvDocument(filename)
+            .doOnSubscribe { onStartLoadingList() }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { result ->
+                when (result) {
+                    is Result.Success -> onDetailsData(result.data)
+                    Result.Error -> onError()
+                }
+            }
+    }
+
+    private fun onDetailsData(data: List<DocumentDisplayItem>) {
+        setValue(DocumentState.Details(data))
+    }
+
+    private fun onStartLoadingList() {
+        setValue(DocumentState.InProgress)
     }
 
     private fun onError() {
-        Log.d("docs", "onError")
-        setValue(DocumentsList.Error)
+        setValue(DocumentState.Error)
     }
 
-    private fun setValue(value: DocumentsList) {
-        _state.value = value
+    override fun onCleared() {
+        super.onCleared()
+        disposable.dispose()
     }
 }
 
-sealed class DocumentsList {
-    data class Success(val data: List<CvDocumentInfo>): DocumentsList()
-    object Error: DocumentsList()
-    object InProgress: DocumentsList()
+sealed class DocumentState {
+    data class Documents(val data: List<CvDocumentInfo>) : DocumentState()
+    data class Details(val data: List<DocumentDisplayItem>) : DocumentState()
+    object Error : DocumentState()
+    object InProgress : DocumentState()
 }
