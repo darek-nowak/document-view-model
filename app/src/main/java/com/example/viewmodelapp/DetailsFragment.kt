@@ -16,10 +16,11 @@ class DetailsFragment: Fragment(R.layout.fragment_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val details = requireArguments().getParcelableArrayList<DocumentDisplayItem>(DOCUMENT_KEY) as List<DocumentDisplayItem>
-        initRecyclerView(details)
+        setupList(details)
+        requireActivity().setUpAppBar(titleText = getString(R.string.title_details), homeEnabled = true)
     }
 
-    private fun initRecyclerView(details: List<DocumentDisplayItem>) {
+    private fun setupList(details: List<DocumentDisplayItem>) {
         documentDetails.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -38,6 +39,7 @@ class DetailsFragment: Fragment(R.layout.fragment_details) {
         ) {
             fragmentManager.beginTransaction()
                 .replace(containerId, newInstance(documentDetails))
+                .addToBackStack(null)
                 .commitAllowingStateLoss()
         }
 

@@ -2,11 +2,13 @@ package com.example.viewmodelapp.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.widget.Toolbar
 import com.example.viewmodelapp.DetailsFragment
 import com.example.viewmodelapp.DocumentViewModel
 import com.example.viewmodelapp.DocumentState
@@ -69,6 +71,22 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        setUpToolbar()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setUpToolbar() {
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
     }
 }
 
