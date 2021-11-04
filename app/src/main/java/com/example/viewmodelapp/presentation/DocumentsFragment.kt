@@ -2,58 +2,96 @@ package com.example.viewmodelapp.presentation
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.annotation.IdRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.viewmodelapp.DocumentViewModel
+import com.example.viewmodelapp.DocumentsState
 import com.example.viewmodelapp.R
 import com.example.viewmodelapp.data.CvDocumentInfo
+import com.example.viewmodelapp.di.DocumentScreenComponentHolder
+import com.example.viewmodelapp.di.DocumentViewModelFactory
+import com.example.viewmodelapp.extensions.changeVisibility
 import com.example.viewmodelapp.setUpAppBar
 import kotlinx.android.synthetic.main.fragment_documents.*
+import javax.inject.Inject
 
 class DocumentsFragment: Fragment(R.layout.fragment_documents) {
-    private val viewModel: DocumentViewModel by activityViewModels()
+    @Inject
+    lateinit var documentViewModelFactory: DocumentViewModelFactory
+
     private val documentsAdapter = DocumentsAdapter()
+    private val viewModel: DocumentViewModel by activityViewModels { documentViewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val data = requireArguments().getParcelableArrayList<CvDocumentInfo>(DOCUMENTS_LIST) as List<CvDocumentInfo>
-        setupList(data)
-        requireActivity().setUpAppBar(titleText = getString(R.string.title_documents))
-    }
+        DocumentScreenComponentHolder.getComponent(requireActivity()).inject(this)
 
-    private fun setupList(data: List<CvDocumentInfo>) {
-        allDocumentsList.apply {
+        if (savedInstanceState == null) {
+            // may not be needed since it is called by fragment manager
+            viewModel.fetchDocuments()
+        }
+        setupList()
+        requireActivity().setUpAppBar(titleText = getString(R.string.title_documents))
+
+        val documentsList = view.findViewById<RecyclerView>(R.id.documentsList)
+        val errorText = view.findViewById<TextView>(R.id.errorText)
+        val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+
+        viewModel.documents.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                DocumentsState.InProgress -> {
+                    progressBar.changeVisibility(true)
+                }
+                DocumentsState.Error -> {
+                    errorText.changeVisibility(true)
+                }
+                is DocumentsState.Documents -> {
+                    documentsList.changeVisibility(true)
+                    progressBar.changeVisibility(false)
+                    showData(state.data)
+                }
+            }
+        }
+    }
+    private fun setupList() {
+        documentsList.apply {
             setHasFixedSize(true)
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             layoutManager = LinearLayoutManager(context)
             adapter = documentsAdapter
         }
+        documentsAdapter.onItemClicked = { documentSelected ->
+            DetailsFragment.attachIfNeeded(
+                R.id.documentContainer,
+                requireActivity().supportFragmentManager,
+                documentSelected.filename
+            )
+        }
+    }
+
+    private fun showData(data: List<CvDocumentInfo>) {
         documentsAdapter.setItems(data)
-        documentsAdapter.onItemClicked  = { documentSelected -> viewModel.selectDocument(documentSelected) }
     }
 
     companion object {
-        private val DOCUMENTS_LIST = "documentsArg"
+        private const val TAG = "documentsTag"
 
-        fun attach(
+        fun attachIfNeeded(
             @IdRes containerId: Int,
-            fragmentManager: FragmentManager,
-            data: List<CvDocumentInfo>
+            fragmentManager: FragmentManager
         ) {
-            fragmentManager.beginTransaction()
-                .add(containerId, newInstance(data))
-                .commitAllowingStateLoss()
-        }
-
-        private fun newInstance(data: List<CvDocumentInfo>) = DocumentsFragment().apply {
-            arguments = Bundle().apply {
-                putParcelableArrayList(DOCUMENTS_LIST, ArrayList(data))
+            if(fragmentManager.findFragmentByTag(TAG) == null) {
+                fragmentManager.beginTransaction()
+                    .add(containerId, DocumentsFragment(), TAG)
+                    .commitAllowingStateLoss()
             }
         }
     }

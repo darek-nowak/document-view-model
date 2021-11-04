@@ -1,8 +1,9 @@
 package com.example.viewmodelapp.viewmodel
 
 import androidx.lifecycle.Observer
+import com.example.viewmodelapp.DetailsState
 import com.example.viewmodelapp.DocumentViewModel
-import com.example.viewmodelapp.DocumentState
+import com.example.viewmodelapp.DocumentsState
 import com.example.viewmodelapp.data.*
 import com.example.viewmodelapp.utils.InstantTaskExecutorExtension
 import com.nhaarman.mockito_kotlin.given
@@ -20,12 +21,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class DocumentViewModelShould {
     private val documentsSubject =  SingleSubject.create<Result<List<CvDocumentInfo>>>()
-    private val detailsSubject = SingleSubject.create<Result<List<DocumentDisplayItem>>>()
     private val documentsInteractor: DocumentListsInteractor = mock {
         on { it.getCvDocumentsList() }.thenReturn(documentsSubject)
     }
     private val detailsInteractor: DocumentInteractor = mock()
-    private val stateObserver: Observer<DocumentState> = mock()
+    private val documentsObserver: Observer<DocumentsState> = mock()
+    private val detailsObserver: Observer<DetailsState> = mock()
 
     private lateinit var viewModel: DocumentViewModel
 
@@ -35,32 +36,39 @@ internal class DocumentViewModelShould {
         RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
         viewModel = DocumentViewModel(documentsInteractor, detailsInteractor)
             .apply {
-                state.observeForever(stateObserver)
+                documents.observeForever(documentsObserver)
+                details.observeForever(detailsObserver)
             }
     }
 
     @Test
-    fun `update view on successful of document list loading`() {
+    fun `update view on success of document list loading`() {
+        viewModel.fetchDocuments()
+
         documentsSubject.onSuccess(Result.Success(DOCUMENTS_LIST))
 
-        verify(stateObserver).onChanged(
-            DocumentState.Documents(DOCUMENTS_LIST)
+        verify(documentsObserver).onChanged(
+            DocumentsState.Documents(DOCUMENTS_LIST)
         )
     }
 
     @Test
     fun `update view on progress of document list loading`() {
-        verify(stateObserver).onChanged(
-            DocumentState.InProgress
+        viewModel.fetchDocuments()
+
+        verify(documentsObserver).onChanged(
+            DocumentsState.InProgress
         )
     }
 
     @Test
     fun `update view on failure of document list loading`() {
+        viewModel.fetchDocuments()
+
         documentsSubject.onSuccess(Result.Error)
 
-        verify(stateObserver).onChanged(
-            DocumentState.Error
+        verify(documentsObserver).onChanged(
+            DocumentsState.Error
         )
     }
 
@@ -69,10 +77,10 @@ internal class DocumentViewModelShould {
         given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
             .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
 
-        viewModel.selectDocument(DOCUMENT_INFO)
+        viewModel.fetchDetails(DOCUMENT_INFO.filename)
 
-        verify(stateObserver).onChanged(
-            DocumentState.Details(DOCUMENT_DETAILS)
+        verify(detailsObserver).onChanged(
+            DetailsState.Details(DOCUMENT_DETAILS)
         )
     }
 
@@ -80,11 +88,11 @@ internal class DocumentViewModelShould {
     fun `update view on progress of document details loading`() {
         given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
             .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
-        reset(stateObserver)
+        reset(documentsObserver)
 
-        viewModel.selectDocument(DOCUMENT_INFO)
+        viewModel.fetchDetails(DOCUMENT_INFO.filename)
 
-        verify(stateObserver).onChanged(DocumentState.InProgress)
+        verify(detailsObserver).onChanged(DetailsState.InProgress)
     }
 
     @Test
@@ -92,9 +100,9 @@ internal class DocumentViewModelShould {
         given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
             .willReturn(Single.just(Result.Error))
 
-        viewModel.selectDocument(DOCUMENT_INFO)
+        viewModel.fetchDetails(DOCUMENT_INFO.filename)
 
-        verify(stateObserver).onChanged(DocumentState.Error)
+        verify(detailsObserver).onChanged(DetailsState.Error)
     }
 
     private companion object {
