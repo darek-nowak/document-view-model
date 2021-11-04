@@ -19,7 +19,12 @@ class DocumentViewModel(
     private val _details: MutableLiveData<DetailsState> = MutableLiveData()
     val details: LiveData<DetailsState> = _details
 
+    private var lastFilename = ""
+
     fun fetchDocuments() {
+        if (_documents.value is DocumentsState.Documents) {
+            return
+        }
         disposable = documentsInteractor.getCvDocumentsList()
             .doOnSubscribe { setDocumentsValue(DocumentsState.InProgress) }
             .observeOn(AndroidSchedulers.mainThread())
@@ -40,9 +45,10 @@ class DocumentViewModel(
     }
 
     fun fetchDetails(filename: String) {
-        // if (_details.value is DetailsState.Details && filename == _details.value) {
-        //     return
-        // }
+         if (filename == lastFilename) {
+             return
+         }
+        lastFilename = filename
         disposable = detailsInteractor.getCvDocument(filename)
             .doOnSubscribe { setDetailsValue(DetailsState.InProgress) }
             .observeOn(AndroidSchedulers.mainThread())

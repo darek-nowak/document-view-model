@@ -6,10 +6,7 @@ import com.example.viewmodelapp.DocumentViewModel
 import com.example.viewmodelapp.DocumentsState
 import com.example.viewmodelapp.data.*
 import com.example.viewmodelapp.utils.InstantTaskExecutorExtension
-import com.nhaarman.mockito_kotlin.given
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.reset
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import io.reactivex.Single
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.schedulers.Schedulers
@@ -73,6 +70,16 @@ internal class DocumentViewModelShould {
     }
 
     @Test
+    fun `call documents interactor only once for subsequent invocations `() {
+        viewModel.fetchDocuments()
+        documentsSubject.onSuccess(Result.Success(DOCUMENTS_LIST))
+        viewModel.fetchDocuments()
+        documentsSubject.onSuccess(Result.Success(DOCUMENTS_LIST))
+
+        verify(documentsInteractor, times(1)).getCvDocumentsList()
+    }
+
+    @Test
     fun `update view on success of document details loading`() {
         given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
             .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
@@ -103,6 +110,32 @@ internal class DocumentViewModelShould {
         viewModel.fetchDetails(DOCUMENT_INFO.filename)
 
         verify(detailsObserver).onChanged(DetailsState.Error)
+    }
+
+    @Test
+    fun `call details interactor only once for subsequent invocations `() {
+        given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
+            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
+
+        viewModel.fetchDetails(DOCUMENT_INFO.filename)
+        viewModel.fetchDetails(DOCUMENT_INFO.filename)
+
+        verify(detailsInteractor, times(1)).getCvDocument(DOCUMENT_INFO.filename)
+    }
+
+
+    @Test
+    fun `call details interactor twice for subsequent invocations with different filename`() {
+        given(detailsInteractor.getCvDocument("first"))
+            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
+        given(detailsInteractor.getCvDocument("second"))
+            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
+
+        viewModel.fetchDetails("first")
+        viewModel.fetchDetails("second")
+
+        verify(detailsInteractor, times(1)).getCvDocument("first")
+        verify(detailsInteractor, times(1)).getCvDocument("second")
     }
 
     private companion object {
