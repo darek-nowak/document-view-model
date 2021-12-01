@@ -22,10 +22,10 @@ interface ApplicationComponent {
 }
 
 @Module
-class ApplicationModule {
+open class ApplicationModule {
     @Singleton
     @Provides
-   fun provideRetrofit(): Retrofit = Retrofit.Builder()
+    open fun provideRetrofit(): Retrofit = Retrofit.Builder()
         .baseUrl("https://api.github.com/")
         .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
         .addConverterFactory(JacksonConverterFactory.create())
