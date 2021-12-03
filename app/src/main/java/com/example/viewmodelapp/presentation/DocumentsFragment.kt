@@ -51,11 +51,12 @@ class DocumentsFragment: Fragment(R.layout.fragment_documents) {
                     progressBar.changeVisibility(true)
                 }
                 DocumentsState.Error -> {
+                    progressBar.changeVisibility(false)
                     errorText.changeVisibility(true)
                 }
                 is DocumentsState.Documents -> {
-                    documentsList.changeVisibility(true)
                     progressBar.changeVisibility(false)
+                    documentsList.changeVisibility(true)
                     showData(state.data)
                 }
             }

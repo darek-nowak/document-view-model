@@ -40,11 +40,12 @@ class DetailsFragment: Fragment(R.layout.fragment_details) {
                     progressBar.changeVisibility(true)
                 }
                 DetailsState.Error -> {
+                    progressBar.changeVisibility(false)
                     errorText.changeVisibility(true)
                 }
                 is DetailsState.Details -> {
-                    documentDetails.changeVisibility(true)
                     progressBar.changeVisibility(false)
+                    documentDetails.changeVisibility(true)
                     showData(state.data)
                 }
             }

@@ -6,6 +6,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.rules.ExternalResource
+import timber.log.Timber
 import java.io.InputStreamReader
 
 private const val SERVER_PORT = 8080
@@ -24,19 +25,17 @@ class MockWebServerRule : ExternalResource() {
         mockWebServer.shutdown()
     }
 
-    fun setMockingDispatcherFor(responseMap: Pair<String, MockResponse>) {
-        mockWebServer.dispatcher = MockDispatcher(responseMap)
+    fun setMockingDispatcherFor(vararg responses: Pair<String, MockResponse>) {
+        mockWebServer.dispatcher = MockDispatcher(mapOf(*responses))
     }
 }
 
 
-private class MockDispatcher(private val responseMap: Pair<String, MockResponse>) : Dispatcher() {
+private class MockDispatcher(private val responses: Map<String, MockResponse>) : Dispatcher() {
     @Throws(InterruptedException::class)
     override fun dispatch(request: RecordedRequest): MockResponse {
-        when (request.path) {
-            responseMap.first -> return responseMap.second
-        }
-        return MockResponse().setResponseCode(404)
+        Timber.d("darek ${request.path}")
+        return responses[request.path] ?: MockResponse().setResponseCode(404)
     }
 }
 

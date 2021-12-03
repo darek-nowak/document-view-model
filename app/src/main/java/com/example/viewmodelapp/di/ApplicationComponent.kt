@@ -5,6 +5,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import io.reactivex.schedulers.Schedulers
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -22,18 +23,25 @@ interface ApplicationComponent {
 }
 
 @Module
-open class ApplicationModule {
+open class ApplicationModule(private val baseUrl: String) {
     @Singleton
     @Provides
-    open fun provideRetrofit(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
+    open fun provideRetrofit(
+        okHttpClient: OkHttpClient
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
         .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
         .addConverterFactory(JacksonConverterFactory.create())
+        .client(okHttpClient)
         .build()
 
     @Singleton
     @Provides
     fun provideJacksonObjectMapper() = ObjectMapper()
+
+    @Singleton
+    @Provides
+    fun provideOkHttpClient() = OkHttpClient()
 }
 
 
