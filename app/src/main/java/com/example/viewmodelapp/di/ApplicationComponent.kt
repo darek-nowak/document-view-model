@@ -20,6 +20,7 @@ import javax.inject.Singleton
 )
 interface ApplicationComponent {
     fun documentScreenComponent(): DocumentScreenComponent.Factory
+    fun okHttpClient(): OkHttpClient
 }
 
 @Module

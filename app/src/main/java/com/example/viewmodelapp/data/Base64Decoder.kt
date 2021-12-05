@@ -8,4 +8,7 @@ class Base64Decoder @Inject constructor() {
     fun decode(encodedString: String) =
         Base64.decode(encodedString, 0)
             .toString(Charsets.UTF_8)
+
+    fun encode(plainString: String) =
+        Base64.encodeToString(plainString.toByteArray(), 0)
 }

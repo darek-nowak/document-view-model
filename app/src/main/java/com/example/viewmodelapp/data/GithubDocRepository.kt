@@ -15,12 +15,8 @@ class GithubDocRepository @Inject constructor(
 ) {
     fun fetchDocument(filename: String): Single<CvData> {
         return api.getFileContent(file = filename)
-            .map { response ->
-                base64Decoder.decode(response.content)
-            }
-            .map {
-                jsonObjectMapper.readValue(it, CvData::class.java)
-            }
+            .map { response -> base64Decoder.decode(response.content) }
+            .map { jsonObjectMapper.readValue(it, CvData::class.java) }
     }
 
     fun fetchDocumentsList(): Single<List<FileInfo>> = api.getFilesList()
@@ -45,7 +41,7 @@ data class  FileInfo(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class FileContent(
+data class  FileContent(
     @JsonProperty("encoding") val encoding: String,
     @JsonProperty("content") val content: String
 )

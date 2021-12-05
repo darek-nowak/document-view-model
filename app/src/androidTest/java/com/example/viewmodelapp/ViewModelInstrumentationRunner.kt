@@ -7,6 +7,6 @@ import androidx.test.runner.AndroidJUnitRunner
 
 class ViewModelInstrumentationRunner : AndroidJUnitRunner() {
     override fun newApplication(cl: ClassLoader?, className: String?, context: Context?): Application {
-        return Instrumentation.newApplication(TestDocumentApplication::class.java, context)
+        return Instrumentation.newApplication(TestViewModelApplication::class.java, context)
     }
 }

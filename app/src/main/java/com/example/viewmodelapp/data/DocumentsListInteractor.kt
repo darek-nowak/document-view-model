@@ -1,12 +1,12 @@
 package com.example.viewmodelapp.data
 
 import android.os.Parcelable
-import android.util.Log
 import com.example.viewmodelapp.di.DocumentActivityScope
 import io.reactivex.Single
 import io.reactivex.disposables.Disposables
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.android.parcel.Parcelize
+import timber.log.Timber
 import javax.inject.Inject
 
 @DocumentActivityScope
@@ -36,7 +36,8 @@ class DocumentListsInteractor @Inject constructor(
             }
             .subscribe(
                 { data -> subject.onNext(Result.Success(data)) },
-                { _ -> subject.onNext(Result.Error) }
+                { e -> subject.onNext(Result.Error)
+                  Timber.e(e) }
             )
     }
 

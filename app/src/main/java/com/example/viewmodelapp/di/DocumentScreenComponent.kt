@@ -5,7 +5,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
 import com.example.viewmodelapp.presentation.DetailsFragment
 import com.example.viewmodelapp.presentation.DocumentsFragment
-import com.example.viewmodelapp.DocumentApplication
+import com.example.viewmodelapp.ViewModelApplication
 import com.example.viewmodelapp.presentation.MainActivity
 import com.example.viewmodelapp.data.GitHubApi
 import dagger.Module
@@ -28,7 +28,7 @@ interface DocumentScreenComponent {
 }
 
 class DocumentScreenComponentHolder : ViewModel() {
-    val component = DocumentApplication.applicationComponent
+    val component = ViewModelApplication.applicationComponent
         .documentScreenComponent().create()
 
     companion object {

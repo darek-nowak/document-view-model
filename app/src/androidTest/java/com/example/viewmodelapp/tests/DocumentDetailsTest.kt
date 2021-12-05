@@ -1,5 +1,6 @@
-package com.example.viewmodelapp
+package com.example.viewmodelapp.tests
 
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -8,10 +9,12 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.viewmodelapp.R
+import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENTS_LIST_RESPONSE_SUCCESS
+import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENT_DETAILS_RESPONSE_ERROR
+import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENT_DETAILS_RESPONSE_SUCCESS
 import com.example.viewmodelapp.presentation.MainActivity
-import com.ig.android.core.app.mock.MockWebServerRule
-import com.ig.android.core.app.mock.withBody
-import okhttp3.mockwebserver.MockResponse
+import com.example.viewmodelapp.rules.MockWebServerRule
 import org.hamcrest.core.IsNot.not
 import org.junit.Rule
 import org.junit.Test
@@ -37,35 +40,48 @@ class DocumentDetailsTest {
         )
 
         onView(withText("Mark Twain"))
-            //.check(matches(isDisplayed()))
             .perform(click())
 
-        onView(withText("Error fetching data"))
-            .check(matches(not(isDisplayed())))
+        onView(withText("Big Data Developer"))
+            .check(matches(isDisplayed()))
     }
 
     @Test
     fun documentDetailsError() {
-        server.setMockingDispatcherFor(DOCUMENTS_LIST_RESPONSE_SUCCESS)
+        server.setMockingDispatcherFor(
+            DOCUMENTS_LIST_RESPONSE_SUCCESS,
+            DOCUMENT_DETAILS_RESPONSE_ERROR
+        )
+
         onView(withText("Mark Twain"))
             .perform(click())
 
         onView(withText("Error fetching data"))
             .check(matches(isDisplayed()))
-            .perform(click())
 
         onView(ViewMatchers.withId(R.id.progressBar))
             .check(matches(not(isDisplayed())))
     }
 
-    private companion object {
-        val DOCUMENTS_LIST_RESPONSE_SUCCESS =
-            "/repos/darek-nowak/json/contents" to MockResponse().withBody("documents_list.json")
-        val DOCUMENTS_LIST_RESPONSE_ERROR =
-            "/repos/darek-nowak/json/contents" to MockResponse().setResponseCode(401)
 
-        val DOCUMENT_DETAILS_RESPONSE_SUCCESS =
-            "/repos/darek-nowak/json/contents/mark_twain.json" to MockResponse()
-                .withBody("mark_twain.json")
+    @Test
+    fun repeatChoosingDetailsFromList() {
+        server.setMockingDispatcherFor(
+            DOCUMENTS_LIST_RESPONSE_SUCCESS,
+            DOCUMENT_DETAILS_RESPONSE_ERROR,
+            DOCUMENT_DETAILS_RESPONSE_SUCCESS
+        )
+
+        onView(withText("Marie Curie"))
+            .perform(click())
+        onView(withText("Error fetching data"))
+            .check(matches(isDisplayed()))
+
+        Espresso.pressBack()
+
+        onView(withText("Mark Twain"))
+            .perform(click())
+        onView(withText("Big Data Developer"))
+            .check(matches(isDisplayed()))
     }
 }

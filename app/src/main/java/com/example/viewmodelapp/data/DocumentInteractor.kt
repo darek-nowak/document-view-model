@@ -5,6 +5,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.Disposables
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.android.parcel.Parcelize
+import timber.log.Timber
 import javax.inject.Inject
 
 class DocumentInteractor @Inject constructor(
@@ -38,7 +39,8 @@ class DocumentInteractor @Inject constructor(
             .map { cvData -> cvData.toDocumentDisplayItems() }
             .subscribe(
                 { data -> subject.onNext(Result.Success(data)) },
-                { _ -> subject.onNext(Result.Error) }
+                { e ->  subject.onNext(Result.Error)
+                  Timber.d( e) }
             )
     }
 

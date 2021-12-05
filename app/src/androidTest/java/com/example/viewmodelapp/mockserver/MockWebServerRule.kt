@@ -1,15 +1,15 @@
-package com.ig.android.core.app.mock
+package com.example.viewmodelapp.rules
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.example.viewmodelapp.data.Base64Decoder
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.rules.ExternalResource
-import timber.log.Timber
 import java.io.InputStreamReader
 
-private const val SERVER_PORT = 8080
+const val MOCK_WEBSERVER_PORT = 8080
 
 class MockWebServerRule : ExternalResource() {
 
@@ -17,7 +17,7 @@ class MockWebServerRule : ExternalResource() {
 
     override fun before() {
         super.before()
-        mockWebServer.start(SERVER_PORT)
+        mockWebServer.start(MOCK_WEBSERVER_PORT)
     }
 
     override fun after() {
@@ -34,7 +34,6 @@ class MockWebServerRule : ExternalResource() {
 private class MockDispatcher(private val responses: Map<String, MockResponse>) : Dispatcher() {
     @Throws(InterruptedException::class)
     override fun dispatch(request: RecordedRequest): MockResponse {
-        Timber.d("darek ${request.path}")
         return responses[request.path] ?: MockResponse().setResponseCode(404)
     }
 }
@@ -43,8 +42,24 @@ fun MockResponse.withBody(fileName: String) =
     setBody(fileName.extractResponseFromAssets())
         .setResponseCode(200)
 
+fun MockResponse.withEncodedContentBody(fileName: String, encoder: Base64Decoder = Base64Decoder()): MockResponse {
+    val encodedContent = encoder.encode(fileName.extractResponseFromAssets())
+    return setBody("""
+        { 
+          "encoding": "base64", 
+          "content": "$encodedContent" 
+        }
+        """.toSingleLine())
+        .setResponseCode(200)
+}
+
+private fun String.toSingleLine(): String =
+    replace("\\s+".toRegex(), "")
+
 private fun String.extractResponseFromAssets() = InstrumentationRegistry
-    .getInstrumentation().context.assets.open("responses/$this").run {
+    .getInstrumentation().context
+    .assets
+    .open("responses/$this").run {
         val inputStreamReader = InputStreamReader(this)
         val text = inputStreamReader.readText()
         inputStreamReader.close()

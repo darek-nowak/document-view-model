@@ -4,12 +4,14 @@ import android.app.Application
 import com.example.viewmodelapp.di.ApplicationComponent
 import com.example.viewmodelapp.di.ApplicationModule
 import com.example.viewmodelapp.di.DaggerApplicationComponent
+import timber.log.Timber
 
-open class DocumentApplication : Application() {
+open class ViewModelApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
         createApplicationComponent()
+        initializeTimer()
     }
 
     open fun createApplicationComponent() {
@@ -17,6 +19,12 @@ open class DocumentApplication : Application() {
             .builder()
             .applicationModule(ApplicationModule("https://api.github.com/"))
             .build()
+    }
+
+    private fun initializeTimer() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 
     companion object {
