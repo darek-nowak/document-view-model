@@ -1,7 +1,6 @@
 package com.example.viewmodelapp.data
 
 import android.os.Parcelable
-import com.example.viewmodelapp.di.DocumentActivityScope
 import io.reactivex.Single
 import io.reactivex.disposables.Disposables
 import io.reactivex.subjects.BehaviorSubject
@@ -9,7 +8,6 @@ import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 import javax.inject.Inject
 
-@DocumentActivityScope
 class DocumentListsInteractor @Inject constructor(
     private val docRepository: GithubDocRepository
 ) {
@@ -17,9 +15,7 @@ class DocumentListsInteractor @Inject constructor(
     private var disposable = Disposables.disposed()
 
     fun getCvDocumentsList(): Single<Result<List<CvDocumentInfo>>> {
-        return subject.doOnSubscribe {
-            if (!subject.hasValue()) subscribeToSource()
-        }
+        return subject.doOnSubscribe { subscribeToSource() }
             .doOnDispose { disposable.dispose() }
             .firstOrError()
     }
@@ -49,8 +45,3 @@ class DocumentListsInteractor @Inject constructor(
 
 @Parcelize
 data class CvDocumentInfo(val filename: String, val name: String) : Parcelable
-
-sealed class Result<out T> {
-    data class Success<T>(val data: T) : Result<T>()
-    object Error : Result<Nothing>()
-}

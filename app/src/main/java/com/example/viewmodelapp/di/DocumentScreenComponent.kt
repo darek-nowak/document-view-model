@@ -14,7 +14,6 @@ import dagger.Subcomponent
 import retrofit2.Retrofit
 import javax.inject.Scope
 
-@DocumentActivityScope
 @Subcomponent
 interface DocumentScreenComponent {
     @Subcomponent.Factory
@@ -44,7 +43,3 @@ class DocumentScreenModule {
     @Provides
     fun provideGitHubApi(retrofit: Retrofit): GitHubApi = retrofit.create(GitHubApi::class.java)
 }
-
-@Scope
-@Retention(AnnotationRetention.RUNTIME)
-annotation class DocumentActivityScope
