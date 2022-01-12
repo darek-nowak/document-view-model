@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.reactivex.Single
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.http.GET
 import retrofit2.http.Path
 import javax.inject.Inject
@@ -19,12 +21,13 @@ class GithubDocRepository @Inject constructor(
             .map { jsonObjectMapper.readValue(it, CvData::class.java) }
     }
 
-    fun fetchDocumentsList(): Single<List<FileInfo>> = api.getFilesList()
+    suspend fun fetchDocumentsList(): List<FileInfo> = api.getFilesList()
 }
 
 interface GitHubApi {
+
     @GET("repos/$USER/$DOC_REPO/contents")
-    fun getFilesList(): Single<List<FileInfo>>
+    suspend fun getFilesList(): List<FileInfo>
 
     @GET("repos/$USER/$DOC_REPO/contents/{file}")
     fun getFileContent(@Path("file") file: String): Single<FileContent>

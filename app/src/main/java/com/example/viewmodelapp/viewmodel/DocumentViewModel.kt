@@ -3,9 +3,11 @@ package com.example.viewmodelapp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.viewmodelapp.data.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposables
+import kotlinx.coroutines.launch
 
 class DocumentViewModel(
     private val documentsInteractor: DocumentListsInteractor,
@@ -25,15 +27,14 @@ class DocumentViewModel(
         if (_documents.value is DocumentsState.Documents) {
             return
         }
-        disposable = documentsInteractor.getCvDocumentsList()
-            .doOnSubscribe { setDocumentsValue(DocumentsState.InProgress) }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { result ->
-                when (result) {
-                    is Result.Success -> setDocumentsValue(DocumentsState.Documents(result.data))
-                    Result.Error -> setDocumentsValue(DocumentsState.Error)
-                }
+
+        viewModelScope.launch {
+            setDocumentsValue(DocumentsState.InProgress)
+            when(val result = documentsInteractor.getCvDocumentsListSuspend()) {
+                is Result.Success -> setDocumentsValue(DocumentsState.Documents(result.data))
+                Result.Error -> setDocumentsValue(DocumentsState.Error)
             }
+        }
     }
 
     private fun setDocumentsValue(value: DocumentsState) {
