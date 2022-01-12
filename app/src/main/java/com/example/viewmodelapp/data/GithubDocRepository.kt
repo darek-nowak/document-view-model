@@ -3,9 +3,6 @@ package com.example.viewmodelapp.data
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.reactivex.Single
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import retrofit2.http.GET
 import retrofit2.http.Path
 import javax.inject.Inject
@@ -15,10 +12,10 @@ class GithubDocRepository @Inject constructor(
     private val base64Decoder: Base64Decoder,
     private val jsonObjectMapper: ObjectMapper
 ) {
-    fun fetchDocument(filename: String): Single<CvData> {
-        return api.getFileContent(file = filename)
-            .map { response -> base64Decoder.decode(response.content) }
-            .map { jsonObjectMapper.readValue(it, CvData::class.java) }
+    suspend fun fetchDocument(filename: String): CvData {
+        val response =  api.getFileContent(file = filename)
+        val decodedContent =  base64Decoder.decode(response.content)
+        return jsonObjectMapper.readValue(decodedContent, CvData::class.java)
     }
 
     suspend fun fetchDocumentsList(): List<FileInfo> = api.getFilesList()
@@ -30,7 +27,7 @@ interface GitHubApi {
     suspend fun getFilesList(): List<FileInfo>
 
     @GET("repos/$USER/$DOC_REPO/contents/{file}")
-    fun getFileContent(@Path("file") file: String): Single<FileContent>
+    suspend fun getFileContent(@Path("file") file: String): FileContent
 
     companion object {
         const val USER = "darek-nowak"

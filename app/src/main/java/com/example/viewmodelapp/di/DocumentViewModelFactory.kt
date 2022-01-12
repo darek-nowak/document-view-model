@@ -2,7 +2,7 @@ package com.example.viewmodelapp.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.viewmodelapp.DocumentViewModel
+import com.example.viewmodelapp.viewmodel.DocumentViewModel
 import com.example.viewmodelapp.data.DocumentInteractor
 import com.example.viewmodelapp.data.DocumentListsInteractor
 import javax.inject.Inject

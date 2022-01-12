@@ -3,10 +3,8 @@ package com.example.viewmodelapp
 import androidx.test.espresso.IdlingRegistry
 import com.example.viewmodelapp.di.ApplicationModule
 import com.example.viewmodelapp.di.DaggerApplicationComponent
-import com.example.viewmodelapp.idlingresources.RxIdlingResource
 import com.example.viewmodelapp.rules.MOCK_WEBSERVER_PORT
 import com.jakewharton.espresso.OkHttp3IdlingResource
-import io.reactivex.plugins.RxJavaPlugins
 
 class TestViewModelApplication : ViewModelApplication() {
 
@@ -24,11 +22,8 @@ class TestViewModelApplication : ViewModelApplication() {
 
     private fun registerIdlingResources() {
         val okHttpIdlingResource = OkHttp3IdlingResource.create("OkHttp", applicationComponent.okHttpClient())
-        val rxIdlingResource = RxIdlingResource()
         IdlingRegistry.getInstance().register(
-            okHttpIdlingResource,
-            rxIdlingResource
+            okHttpIdlingResource
         )
-        RxJavaPlugins.setScheduleHandler(rxIdlingResource)
     }
 }

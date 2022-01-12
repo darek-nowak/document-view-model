@@ -1,20 +1,16 @@
-package com.example.viewmodelapp
+package com.example.viewmodelapp.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.viewmodelapp.data.*
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposables
 import kotlinx.coroutines.launch
 
 class DocumentViewModel(
     private val documentsInteractor: DocumentListsInteractor,
     private val detailsInteractor: DocumentInteractor
 ) : ViewModel() {
-    private var disposable = Disposables.disposed()
-
     private val _documents: MutableLiveData<DocumentsState> = MutableLiveData()
     val documents: LiveData<DocumentsState> = _documents
 
@@ -24,13 +20,11 @@ class DocumentViewModel(
     private var lastFilename = ""
 
     fun fetchDocuments() {
-        if (_documents.value is DocumentsState.Documents) {
-            return
-        }
+        if (_documents.value is DocumentsState.Documents) { return }
 
         viewModelScope.launch {
-            setDocumentsValue(DocumentsState.InProgress)
-            when(val result = documentsInteractor.getCvDocumentsListSuspend()) {
+            //setDocumentsValue(DocumentsState.InProgress)
+            when(val result = documentsInteractor.getCvDocumentsList()) {
                 is Result.Success -> setDocumentsValue(DocumentsState.Documents(result.data))
                 Result.Error -> setDocumentsValue(DocumentsState.Error)
             }
@@ -41,29 +35,21 @@ class DocumentViewModel(
         _documents.value = value
     }
 
+    fun fetchDetails(filename: String) {
+         if (filename == lastFilename) { return }
+
+        lastFilename = filename
+        viewModelScope.launch {
+            setDetailsValue(DetailsState.InProgress)
+            when(val result = detailsInteractor.getCvDocument(filename)) {
+                is Result.Success -> setDetailsValue(DetailsState.Details(result.data))
+                Result.Error -> setDetailsValue(DetailsState.Error)
+            }
+        }
+    }
+
     private fun setDetailsValue(value: DetailsState) {
         _details.value = value
-    }
-
-    fun fetchDetails(filename: String) {
-         if (filename == lastFilename) {
-             return
-         }
-        lastFilename = filename
-        disposable = detailsInteractor.getCvDocument(filename)
-            .doOnSubscribe { setDetailsValue(DetailsState.InProgress) }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { result ->
-                when (result) {
-                    is Result.Success -> setDetailsValue(DetailsState.Details(result.data))
-                    Result.Error -> setDetailsValue(DetailsState.Error)
-                }
-            }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        disposable.dispose()
     }
 }
 

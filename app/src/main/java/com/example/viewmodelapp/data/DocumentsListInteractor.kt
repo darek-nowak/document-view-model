@@ -7,7 +7,7 @@ import javax.inject.Inject
 class DocumentListsInteractor @Inject constructor(
     private val docRepository: GithubDocRepository
 ) {
-    suspend fun getCvDocumentsListSuspend(): Result<List<CvDocumentInfo>> =
+    suspend fun getCvDocumentsList(): Result<List<CvDocumentInfo>> =
         asResult {
             docRepository.fetchDocumentsList()
                 .map { file ->

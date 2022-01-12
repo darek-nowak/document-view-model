@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.viewmodelapp.*
 import com.example.viewmodelapp.data.DocumentDisplayItem
 import com.example.viewmodelapp.extensions.changeVisibility
+import com.example.viewmodelapp.viewmodel.DetailsState
+import com.example.viewmodelapp.viewmodel.DocumentViewModel
 import kotlinx.android.synthetic.main.fragment_details.*
 
 class DetailsFragment: Fragment(R.layout.fragment_details) {

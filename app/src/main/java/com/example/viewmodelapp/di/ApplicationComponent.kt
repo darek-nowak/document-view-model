@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import javax.inject.Singleton
 
@@ -31,7 +29,6 @@ open class ApplicationModule(private val baseUrl: String) {
         okHttpClient: OkHttpClient
     ): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
         .addConverterFactory(JacksonConverterFactory.create())
         .client(okHttpClient)
         .build()

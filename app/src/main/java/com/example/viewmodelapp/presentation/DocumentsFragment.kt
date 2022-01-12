@@ -11,8 +11,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.viewmodelapp.DocumentViewModel
-import com.example.viewmodelapp.DocumentsState
+import com.example.viewmodelapp.viewmodel.DocumentViewModel
+import com.example.viewmodelapp.viewmodel.DocumentsState
 import com.example.viewmodelapp.R
 import com.example.viewmodelapp.data.CvDocumentInfo
 import com.example.viewmodelapp.di.DocumentScreenComponentHolder
