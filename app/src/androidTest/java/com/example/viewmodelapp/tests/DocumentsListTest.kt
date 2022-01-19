@@ -1,7 +1,7 @@
 package com.example.viewmodelapp.tests
 
+import android.os.AsyncTask
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -13,7 +13,12 @@ import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENTS_LIST_RESPONSE
 import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENTS_LIST_RESPONSE_SUCCESS
 import com.example.viewmodelapp.presentation.MainActivity
 import com.example.viewmodelapp.rules.MockWebServerRule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.hamcrest.core.IsNot.not
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +35,16 @@ class DocumentsListTest {
         MainActivity::class.java
     )
 
+    @Before
+    fun setUp() {
+       Dispatchers.setMain(AsyncTask.THREAD_POOL_EXECUTOR.asCoroutineDispatcher())
+    }
+
+    @Before
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
     fun documentListSuccess() {
         server.setMockingDispatcherFor(DOCUMENTS_LIST_RESPONSE_SUCCESS)
@@ -44,7 +59,6 @@ class DocumentsListTest {
 
         onView(withText("Error fetching data"))
             .check(matches(isDisplayed()))
-            .perform(click())
 
         onView(ViewMatchers.withId(R.id.progressBar))
             .check(matches(not(isDisplayed())))

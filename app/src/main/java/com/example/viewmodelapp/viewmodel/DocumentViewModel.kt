@@ -23,7 +23,7 @@ class DocumentViewModel(
         if (_documents.value is DocumentsState.Documents) { return }
 
         viewModelScope.launch {
-            //setDocumentsValue(DocumentsState.InProgress)
+            setDocumentsValue(DocumentsState.InProgress)
             when(val result = documentsInteractor.getCvDocumentsList()) {
                 is Result.Success -> setDocumentsValue(DocumentsState.Documents(result.data))
                 Result.Error -> setDocumentsValue(DocumentsState.Error)

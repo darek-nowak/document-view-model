@@ -3,6 +3,7 @@ package com.example.viewmodelapp
 import androidx.test.espresso.IdlingRegistry
 import com.example.viewmodelapp.di.ApplicationModule
 import com.example.viewmodelapp.di.DaggerApplicationComponent
+import com.example.viewmodelapp.di.TestDispatchersModule
 import com.example.viewmodelapp.rules.MOCK_WEBSERVER_PORT
 import com.jakewharton.espresso.OkHttp3IdlingResource
 
@@ -17,6 +18,7 @@ class TestViewModelApplication : ViewModelApplication() {
         applicationComponent = DaggerApplicationComponent
             .builder()
             .applicationModule(ApplicationModule("http://localhost:$MOCK_WEBSERVER_PORT"))
+            .dispatchersModule(TestDispatchersModule())
             .build()
     }
 

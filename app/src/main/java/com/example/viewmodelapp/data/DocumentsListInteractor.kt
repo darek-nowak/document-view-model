@@ -1,14 +1,16 @@
 package com.example.viewmodelapp.data
 
 import android.os.Parcelable
+import com.example.viewmodelapp.CoroutineDispatchersProvider
 import kotlinx.android.parcel.Parcelize
 import javax.inject.Inject
 
 class DocumentListsInteractor @Inject constructor(
-    private val docRepository: GithubDocRepository
+    private val docRepository: GithubDocRepository,
+    private val dispatchersProvider: CoroutineDispatchersProvider
 ) {
     suspend fun getCvDocumentsList(): Result<List<CvDocumentInfo>> =
-        asResult {
+        asResult(dispatchersProvider.io()) {
             docRepository.fetchDocumentsList()
                 .map { file ->
                     CvDocumentInfo(

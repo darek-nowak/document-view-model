@@ -1,5 +1,6 @@
 package com.example.viewmodelapp.tests
 
+import android.os.AsyncTask
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -15,7 +16,12 @@ import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENT_DETAILS_RESPON
 import com.example.viewmodelapp.mockserver.MockResponses.DOCUMENT_DETAILS_RESPONSE_SUCCESS
 import com.example.viewmodelapp.presentation.MainActivity
 import com.example.viewmodelapp.rules.MockWebServerRule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.hamcrest.core.IsNot.not
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +38,16 @@ class DocumentDetailsTest {
         MainActivity::class.java
     )
 
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(AsyncTask.THREAD_POOL_EXECUTOR.asCoroutineDispatcher())
+    }
+
+    @Before
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
     fun documentDetailsSuccess() {
         server.setMockingDispatcherFor(
@@ -40,6 +56,7 @@ class DocumentDetailsTest {
         )
 
         onView(withText("Mark Twain"))
+            .check(matches(isDisplayed()))
             .perform(click())
 
         onView(withText("Big Data Developer"))
@@ -54,6 +71,7 @@ class DocumentDetailsTest {
         )
 
         onView(withText("Mark Twain"))
+            .check(matches(isDisplayed()))
             .perform(click())
 
         onView(withText("Error fetching data"))
@@ -73,6 +91,7 @@ class DocumentDetailsTest {
         )
 
         onView(withText("Marie Curie"))
+            .check(matches(isDisplayed()))
             .perform(click())
         onView(withText("Error fetching data"))
             .check(matches(isDisplayed()))
@@ -80,6 +99,7 @@ class DocumentDetailsTest {
         Espresso.pressBack()
 
         onView(withText("Mark Twain"))
+            .check(matches(isDisplayed()))
             .perform(click())
         onView(withText("Big Data Developer"))
             .check(matches(isDisplayed()))

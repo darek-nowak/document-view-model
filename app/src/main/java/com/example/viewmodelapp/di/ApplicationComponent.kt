@@ -13,7 +13,8 @@ import javax.inject.Singleton
 @Component(
     modules = [
         ApplicationModule::class,
-        DocumentScreenModule::class
+        DocumentScreenModule::class,
+        DispatchersModule::class
     ]
 )
 interface ApplicationComponent {

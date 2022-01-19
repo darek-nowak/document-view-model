@@ -4,15 +4,18 @@ import androidx.lifecycle.Observer
 import com.example.viewmodelapp.CoroutineTestExtension
 import com.example.viewmodelapp.data.*
 import com.example.viewmodelapp.utils.InstantTaskExecutorExtension
-import com.nhaarman.mockito_kotlin.given
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import kotlinx.coroutines.runBlocking
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.coVerifyOrder
+import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@ExperimentalCoroutinesApi
 @ExtendWith(
     value = [
         InstantTaskExecutorExtension::class,
@@ -20,10 +23,10 @@ import org.junit.jupiter.api.extension.ExtendWith
     ]
 )
 internal class DocumentViewModelShould {
-    private val documentsInteractor: DocumentListsInteractor = mock()
-    private val detailsInteractor: DocumentInteractor = mock()
-    private val documentsObserver: Observer<DocumentsState> = mock()
-    private val detailsObserver: Observer<DetailsState> = mock()
+    private val documentsInteractor: DocumentListsInteractor = mockk()
+    private val documentsObserver: Observer<DocumentsState> = mockk(relaxed = true)
+    private val detailsInteractor: DocumentInteractor = mockk()
+    private val detailsObserver: Observer<DetailsState> = mockk(relaxed = true)
 
     private lateinit var viewModel: DocumentViewModel
 
@@ -38,107 +41,105 @@ internal class DocumentViewModelShould {
 
     @Test
     fun `update view on success of document list loading`() {
-        given { runBlocking { documentsInteractor.getCvDocumentsList()  }}.willReturn(Result.Success(DOCUMENTS_LIST))
+        coEvery { documentsInteractor.getCvDocumentsList()  } returns Result.Success(DOCUMENTS_LIST)
 
         runBlockingTest {
             viewModel.fetchDocuments()
         }
 
-        //documentsSubject.onSuccess(Result.Success(DOCUMENTS_LIST))
-
-        verify(documentsObserver).onChanged(
-            DocumentsState.Documents(DOCUMENTS_LIST)
-        )
-    }
-
-    @Test
-    fun `update view on progress of document list loading`() {
-        viewModel.fetchDocuments()
-
-        verify(documentsObserver).onChanged(
-            DocumentsState.InProgress
-        )
+        coVerifyOrder {
+            documentsObserver.onChanged(DocumentsState.InProgress)
+            documentsObserver.onChanged(DocumentsState.Documents(DOCUMENTS_LIST))
+        }
     }
 
     @Test
     fun `update view on failure of document list loading`() {
-        viewModel.fetchDocuments()
+        coEvery { documentsInteractor.getCvDocumentsList() } returns Result.Error
 
-        //documentsSubject.onSuccess(Result.Error)
+        runBlockingTest {
+            viewModel.fetchDocuments()
+        }
 
-        verify(documentsObserver).onChanged(
-            DocumentsState.Error
-        )
+        coVerifyOrder {
+            documentsObserver.onChanged(DocumentsState.InProgress)
+            documentsObserver.onChanged(DocumentsState.Error)
+        }
     }
 
-//    @Test
-//    fun `call documents interactor only once for subsequent invocations `() {
-//        viewModel.fetchDocuments()
-//        documentsSubject.onSuccess(Result.Success(DOCUMENTS_LIST))
-//        viewModel.fetchDocuments()
-//        documentsSubject.onSuccess(Result.Success(DOCUMENTS_LIST))
-//
-//        verify(documentsInteractor, times(1)).getCvDocumentsList()
-//    }
-//
-//    @Test
-//    fun `update view on success of document details loading`() {
-//        given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
-//            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
-//
-//        viewModel.fetchDetails(DOCUMENT_INFO.filename)
-//
-//        verify(detailsObserver).onChanged(
-//            DetailsState.Details(DOCUMENT_DETAILS)
-//        )
-//    }
-//
-//    @Test
-//    fun `update view on progress of document details loading`() {
-//        given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
-//            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
-//        reset(documentsObserver)
-//
-//        viewModel.fetchDetails(DOCUMENT_INFO.filename)
-//
-//        verify(detailsObserver).onChanged(DetailsState.InProgress)
-//    }
-//
-//    @Test
-//    fun `update view on error of document details loading`() {
-//        given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
-//            .willReturn(Single.just(Result.Error))
-//
-//        viewModel.fetchDetails(DOCUMENT_INFO.filename)
-//
-//        verify(detailsObserver).onChanged(DetailsState.Error)
-//    }
-//
-//    @Test
-//    fun `call details interactor only once for subsequent invocations `() {
-//        given(detailsInteractor.getCvDocument(DOCUMENT_INFO.filename))
-//            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
-//
-//        viewModel.fetchDetails(DOCUMENT_INFO.filename)
-//        viewModel.fetchDetails(DOCUMENT_INFO.filename)
-//
-//        verify(detailsInteractor, times(1)).getCvDocument(DOCUMENT_INFO.filename)
-//    }
-//
-//
-//    @Test
-//    fun `call details interactor twice for subsequent invocations with different filename`() {
-//        given(detailsInteractor.getCvDocument("first"))
-//            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
-//        given(detailsInteractor.getCvDocument("second"))
-//            .willReturn(Single.just(Result.Success(DOCUMENT_DETAILS)))
-//
-//        viewModel.fetchDetails("first")
-//        viewModel.fetchDetails("second")
-//
-//        verify(detailsInteractor, times(1)).getCvDocument("first")
-//        verify(detailsInteractor, times(1)).getCvDocument("second")
-//    }
+    @Test
+    fun `fetch documents list only once for subsequent invocations `() {
+        coEvery { documentsInteractor.getCvDocumentsList() } returns
+                Result.Success(DOCUMENTS_LIST)
+
+        runBlockingTest {
+            viewModel.fetchDocuments()
+            viewModel.fetchDocuments()
+        }
+
+        coVerify(exactly = 1) { documentsInteractor.getCvDocumentsList() }
+    }
+
+    @Test
+    fun `update view on success of document details loading`() {
+        coEvery { detailsInteractor.getCvDocument(DOCUMENT_INFO.filename) } returns
+             Result.Success(DOCUMENT_DETAILS)
+
+        runBlockingTest {
+            viewModel.fetchDetails(DOCUMENT_INFO.filename)
+        }
+
+        coVerifyOrder {
+            detailsObserver.onChanged(DetailsState.InProgress)
+            detailsObserver.onChanged(DetailsState.Details(DOCUMENT_DETAILS))
+        }
+    }
+
+    @Test
+    fun `update view on error of document details loading`() {
+        coEvery { detailsInteractor.getCvDocument(DOCUMENT_INFO.filename) } returns
+                Result.Error
+
+        runBlockingTest {
+            viewModel.fetchDetails(DOCUMENT_INFO.filename)
+        }
+
+        coVerifyOrder {
+            detailsObserver.onChanged(DetailsState.InProgress)
+            detailsObserver.onChanged(DetailsState.Error)
+        }
+    }
+
+    @Test
+    fun `fetch document details only once for subsequent invocations `() {
+        coEvery { detailsInteractor.getCvDocument(DOCUMENT_INFO.filename) } returns
+                Result.Success(DOCUMENT_DETAILS)
+
+        runBlockingTest {
+            viewModel.fetchDetails(DOCUMENT_INFO.filename)
+            viewModel.fetchDetails(DOCUMENT_INFO.filename)
+        }
+
+        coVerify(exactly = 1) { detailsInteractor.getCvDocument(DOCUMENT_INFO.filename) }
+    }
+
+    @Test
+    fun `call details interactor twice for subsequent invocations with different filename`() {
+        coEvery { detailsInteractor.getCvDocument("first") } returns
+            Result.Success(DOCUMENT_DETAILS)
+        coEvery { detailsInteractor.getCvDocument("second") } returns
+            Result.Success(DOCUMENT_DETAILS)
+
+        runBlockingTest {
+            viewModel.fetchDetails("first")
+            viewModel.fetchDetails("second")
+        }
+
+        coVerifyOrder {
+            detailsInteractor.getCvDocument("first")
+            detailsInteractor.getCvDocument("second")
+        }
+    }
 
     private companion object {
         val DOCUMENTS_LIST = listOf(CvDocumentInfo("sir_richard.json", "Sir Richard"))
