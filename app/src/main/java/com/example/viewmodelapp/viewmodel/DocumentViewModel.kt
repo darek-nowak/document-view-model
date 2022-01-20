@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 class DocumentViewModel(
     private val documentsInteractor: DocumentListsInteractor,
-    private val detailsInteractor: DocumentInteractor
+    private val detailsInteractor: DocumentDetailsInteractor
 ) : ViewModel() {
     private val _documents: MutableLiveData<DocumentsState> = MutableLiveData()
     val documents: LiveData<DocumentsState> = _documents

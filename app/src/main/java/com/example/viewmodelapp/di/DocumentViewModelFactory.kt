@@ -3,7 +3,7 @@ package com.example.viewmodelapp.di
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.viewmodelapp.viewmodel.DocumentViewModel
-import com.example.viewmodelapp.data.DocumentInteractor
+import com.example.viewmodelapp.data.DocumentDetailsInteractor
 import com.example.viewmodelapp.data.DocumentListsInteractor
 import javax.inject.Inject
 
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class DocumentViewModelFactory @Inject constructor(
     val documentsInteractor: DocumentListsInteractor,
-    val detailsInteractor: DocumentInteractor
+    val detailsInteractor: DocumentDetailsInteractor
 ) : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return DocumentViewModel(documentsInteractor, detailsInteractor) as T

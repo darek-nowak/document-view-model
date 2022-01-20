@@ -3,7 +3,7 @@ package com.example.viewmodelapp.data
 import com.example.viewmodelapp.CoroutineDispatchersProvider
 import javax.inject.Inject
 
-class DocumentInteractor @Inject constructor(
+class DocumentDetailsInteractor @Inject constructor(
     private val docRepository: GithubDocRepository,
     private val dispatchersProvider: CoroutineDispatchersProvider
 ) {

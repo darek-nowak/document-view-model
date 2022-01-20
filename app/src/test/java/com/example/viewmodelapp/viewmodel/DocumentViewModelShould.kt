@@ -9,7 +9,6 @@ import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,7 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class DocumentViewModelShould {
     private val documentsInteractor: DocumentListsInteractor = mockk()
     private val documentsObserver: Observer<DocumentsState> = mockk(relaxed = true)
-    private val detailsInteractor: DocumentInteractor = mockk()
+    private val detailsInteractor: DocumentDetailsInteractor = mockk()
     private val detailsObserver: Observer<DetailsState> = mockk(relaxed = true)
 
     private lateinit var viewModel: DocumentViewModel
