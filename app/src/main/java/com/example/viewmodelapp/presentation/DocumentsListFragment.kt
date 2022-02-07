@@ -49,8 +49,11 @@ class DocumentsListFragment: Fragment(R.layout.fragment_documents) {
             viewModel.fetchDocuments()
         }
         setupList()
-        requireActivity().setUpAppBar(titleText = getString(R.string.title_documents))
+        setUpToolbarTitle()
+        observeDocumentsListChanges()
+    }
 
+    private fun observeDocumentsListChanges() {
         val documentsList = binding.documentsList
         val errorText = binding.errorText
         val progressBar = binding.progressBar
@@ -72,6 +75,7 @@ class DocumentsListFragment: Fragment(R.layout.fragment_documents) {
             }
         }
     }
+
     private fun setupList() {
         documentsList.apply {
             setHasFixedSize(true)
@@ -86,6 +90,10 @@ class DocumentsListFragment: Fragment(R.layout.fragment_documents) {
                 documentSelected.filename
             )
         }
+    }
+
+    private fun setUpToolbarTitle() {
+        requireActivity().setUpAppBar(titleText = getString(R.string.title_documents))
     }
 
     private fun showData(data: List<CvDocumentInfo>) {

@@ -37,13 +37,17 @@ class DocumentDetailsFragment: Fragment(R.layout.fragment_details) {
         super.onViewCreated(view, savedInstanceState)
 
         if (savedInstanceState == null) {
-            val documentName = requireArguments().getString(DOCUMENT_NAME_KEY)!!
-            viewModel.fetchDetails(documentName)
+            viewModel.fetchDetails(
+                filename = requireArguments().getString(DOCUMENT_NAME_KEY)!!
+            )
         }
 
         setupList()
-        requireActivity().setUpAppBar(titleText = getString(R.string.title_details), homeEnabled = true)
+        setUpToolbarTitle()
+        observeDetailsChanges()
+    }
 
+    private fun observeDetailsChanges() {
         val documentDetails = binding.documentDetails
         val errorText = binding.errorText
         val progressBar = binding.progressBar
@@ -64,6 +68,13 @@ class DocumentDetailsFragment: Fragment(R.layout.fragment_details) {
                 }
             }
         }
+    }
+
+    private fun setUpToolbarTitle() {
+        requireActivity().setUpAppBar(
+            titleText = getString(R.string.title_details),
+            homeEnabled = true
+        )
     }
 
     private fun setupList() {

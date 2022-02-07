@@ -20,22 +20,24 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         documentScreenComponent = ViewModelApplication.applicationComponent
             .documentScreenComponent()
             .create()
+        super.onCreate(savedInstanceState)
 
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         documentScreenComponent.inject(this)
 
+        attachListFragmentIfNeeded()
+        setUpToolbar()
+    }
+
+    private fun attachListFragmentIfNeeded() {
         DocumentsListFragment.attachIfNeeded(
             containerId = R.id.documentContainer,
             fragmentManager = supportFragmentManager
         )
-
-        setUpToolbar()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
