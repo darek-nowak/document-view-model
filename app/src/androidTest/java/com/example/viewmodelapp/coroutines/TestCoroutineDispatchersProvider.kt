@@ -1,6 +1,7 @@
-package com.example.viewmodelapp
+package com.example.viewmodelapp.coroutines
 
 import android.os.AsyncTask
+import com.example.viewmodelapp.CoroutineDispatchersProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 

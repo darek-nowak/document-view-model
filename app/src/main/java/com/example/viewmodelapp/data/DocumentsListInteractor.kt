@@ -3,6 +3,7 @@ package com.example.viewmodelapp.data
 import android.os.Parcelable
 import com.example.viewmodelapp.CoroutineDispatchersProvider
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 import javax.inject.Inject
 
 class DocumentListsInteractor @Inject constructor(
@@ -23,7 +24,7 @@ class DocumentListsInteractor @Inject constructor(
     private fun String.toApplicantName() =
         removeSuffix(".json")
             .split("_")
-            .joinToString(" ") { it.capitalize() }
+            .joinToString(" ") { it.capitalize(Locale.UK) }
 }
 
 @Parcelize

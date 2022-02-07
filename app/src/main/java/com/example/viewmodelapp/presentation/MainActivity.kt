@@ -3,9 +3,10 @@ package com.example.viewmodelapp.presentation
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.example.viewmodelapp.R
-import com.example.viewmodelapp.di.DocumentScreenComponentHolder
+import com.example.viewmodelapp.ViewModelApplication
+import com.example.viewmodelapp.databinding.ActivityMainBinding
+import com.example.viewmodelapp.di.DocumentScreenComponent
 import com.example.viewmodelapp.di.DocumentViewModelFactory
 import javax.inject.Inject
 
@@ -14,16 +15,22 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var documentViewModelFactory: DocumentViewModelFactory
 
+    lateinit var documentScreenComponent: DocumentScreenComponent
+
+    lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-//        (application as DocumentApplication).getComponent()
-//            .documentScreenComponent()
-//            .create()
-//            .inject(this)
-        DocumentScreenComponentHolder.getComponent(this).inject(this)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        DocumentsFragment.attachIfNeeded(
+        documentScreenComponent = ViewModelApplication.applicationComponent
+            .documentScreenComponent()
+            .create()
+
+        documentScreenComponent.inject(this)
+
+        DocumentsListFragment.attachIfNeeded(
             containerId = R.id.documentContainer,
             fragmentManager = supportFragmentManager
         )
@@ -42,7 +49,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpToolbar() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
     }
 }

@@ -1,8 +1,7 @@
 package com.example.viewmodelapp.di
 
 import com.example.viewmodelapp.CoroutineDispatchersProvider
-import com.example.viewmodelapp.DefaultCoroutineDispatchersProvider
-import com.example.viewmodelapp.TestCoroutineDispatchersProvider
+import com.example.viewmodelapp.coroutines.TestCoroutineDispatchersProvider
 import dagger.Module
 import dagger.Provides
 

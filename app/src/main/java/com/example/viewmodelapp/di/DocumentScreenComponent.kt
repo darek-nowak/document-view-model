@@ -1,18 +1,12 @@
 package com.example.viewmodelapp.di
 
-import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
-import com.example.viewmodelapp.presentation.DetailsFragment
-import com.example.viewmodelapp.presentation.DocumentsFragment
-import com.example.viewmodelapp.ViewModelApplication
-import com.example.viewmodelapp.presentation.MainActivity
 import com.example.viewmodelapp.data.GitHubApi
+import com.example.viewmodelapp.presentation.DocumentsListFragment
+import com.example.viewmodelapp.presentation.MainActivity
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
 import retrofit2.Retrofit
-import javax.inject.Scope
 
 @Subcomponent
 interface DocumentScreenComponent {
@@ -22,20 +16,7 @@ interface DocumentScreenComponent {
     }
 
     fun inject(activity: MainActivity)
-    fun inject(documentFragment: DetailsFragment)
-    fun inject(documentsListFragment: DocumentsFragment)
-}
-
-class DocumentScreenComponentHolder : ViewModel() {
-    val component = ViewModelApplication.applicationComponent
-        .documentScreenComponent().create()
-
-    companion object {
-        fun getComponent(activity: ComponentActivity): DocumentScreenComponent {
-            val holder: DocumentScreenComponentHolder by activity.viewModels()
-            return holder.component
-        }
-    }
+    fun inject(documentsListFragment: DocumentsListFragment)
 }
 
 @Module(subcomponents = [ DocumentScreenComponent::class ])

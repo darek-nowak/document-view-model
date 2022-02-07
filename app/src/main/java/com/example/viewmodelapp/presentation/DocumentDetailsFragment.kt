@@ -1,25 +1,37 @@
 package com.example.viewmodelapp.presentation
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.viewmodelapp.*
+import com.example.viewmodelapp.R
 import com.example.viewmodelapp.data.DocumentDisplayItem
+import com.example.viewmodelapp.databinding.FragmentDetailsBinding
 import com.example.viewmodelapp.extensions.changeVisibility
+import com.example.viewmodelapp.setUpAppBar
 import com.example.viewmodelapp.viewmodel.DetailsState
 import com.example.viewmodelapp.viewmodel.DocumentViewModel
 import kotlinx.android.synthetic.main.fragment_details.*
 
-class DetailsFragment: Fragment(R.layout.fragment_details) {
+class DocumentDetailsFragment: Fragment(R.layout.fragment_details) {
+    private lateinit var binding: FragmentDetailsBinding
+
     private val detailsAdapter = DetailsAdapter()
     private val viewModel: DocumentViewModel by activityViewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,9 +44,9 @@ class DetailsFragment: Fragment(R.layout.fragment_details) {
         setupList()
         requireActivity().setUpAppBar(titleText = getString(R.string.title_details), homeEnabled = true)
 
-        val documentDetails = view.findViewById<RecyclerView>(R.id.documentDetails)
-        val errorText = view.findViewById<TextView>(R.id.errorText)
-        val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+        val documentDetails = binding.documentDetails
+        val errorText = binding.errorText
+        val progressBar = binding.progressBar
 
         viewModel.details.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -80,7 +92,7 @@ class DetailsFragment: Fragment(R.layout.fragment_details) {
                 .commitAllowingStateLoss()
         }
 
-        private fun newInstance(documentName: String): Fragment = DetailsFragment().apply {
+        private fun newInstance(documentName: String): Fragment = DocumentDetailsFragment().apply {
             arguments = Bundle().apply {
                 putString(DOCUMENT_NAME_KEY, documentName)
             }
